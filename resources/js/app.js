@@ -13,4 +13,3 @@ import './bootstrap';
  */
 
 import './components/Example';
-console.log("im app.js")
