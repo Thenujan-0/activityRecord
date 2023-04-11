@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('faps', function (Blueprint $table) {
+        Schema::create('entries', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->unsignedBigInteger("user_id");
+            $table->foreignId("user_id")->constrained();
+            $table->foreignId("tag_id")->constrained();
             $table->date("date");
-            $table->string("text");
+            $table->string("text")->nullable();
         });
     }
 
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('faps');
+        Schema::dropIfExists('entries');
     }
 };

@@ -5,15 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Fap extends Model
+class Entry extends Model
 {
     use HasFactory;
 
-    protected $table= 'faps_table';
-
-    protected $fillable = [
+    protected $fillable =[
         'user_id',
-        'date',
-        'text'        
+        'tag_id',
+        'date'
     ];
 }
