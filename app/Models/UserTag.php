@@ -15,4 +15,8 @@ class UserTag extends Model
         'user_id',
         'tag_id',
     ];
+
+    public function tag(){
+        return Tag::where(['id'=>$this->tag_id])->first();
+    }
 }

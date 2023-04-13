@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\Tag;
+
 class Entry extends Model
 {
     use HasFactory;
@@ -14,4 +16,8 @@ class Entry extends Model
         'tag_id',
         'date'
     ];
+
+    public function tag(){
+        return Tag::where(["id"=>$this->tag_id])->first();
+    }
 }
