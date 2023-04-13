@@ -2,40 +2,41 @@ import {useState, useEffect} from  'react'
 import axios from "axios";
 
 import ContextMenu from './ContextMenu'
-function CalendarDateItem({date,active,clickCallback,fapped}){
+import SelectTags from './SelectTags';
+
+function CalendarDateItem({date,active,clickCallback,tags}){
     
     //convert string to bool
     active = active == 'true'
     let commonTextClass='fs-3 m-1 p-4'
     let inactiveTextClass = 'date-inactive text-muted'+' '+commonTextClass
     let activeTextClass = 'date-active text-dark'+' '+commonTextClass
-    const fappedClass = ' bg-secondary'
 
-    const className = "btn " + (active ? activeTextClass :inactiveTextClass) + (fapped? fappedClass : '')
+    const className = "btn " + (active ? activeTextClass :inactiveTextClass) 
     const style = {'minWidth':"80px"} 
 
-
     return (<>
-        <div className={className} style={style} date={date.getTime()} onClick={clickCallback}>{date.getDate()}</div>
+        <div className={className} style={style} date={date.getTime()} onClick={clickCallback}>
+            {date.getDate()}
+            {tags && tags.map((tag)=>{
+                return <h6 key={tag} >{tag}</h6>
+            })}
+            </div>
     </>)
 }
 
-function CalendarRow({dates,inActiveDates,clickCallback,fapDates}){
+function CalendarRow({dates,inActiveDates,clickCallback,tags}){
     
     //To make it comparable with another datetime object
     inActiveDates = inActiveDates.map((dateObj)=>dateObj.getTime())
-    fapDates = fapDates.map((dateStr)=>{
-        const splitted = dateStr.split("-")
-        //To make month zero indexed
-        splitted[1]=splitted[1]-1
-        let dateObj = new Date(...splitted)
-        return dateObj.getTime()
-        
-    })
-    
     return (<>
         <div className="d-flex">
-            {dates.map((date)=> <CalendarDateItem key={date} date={date} clickCallback={clickCallback} fapped={fapDates.includes(date.getTime())} active={inActiveDates.includes(date.getTime())? 'false' : 'true' }/>) }
+            {dates.map((date)=> {
+                const dateStr = date.toISOString().substring(0,10)
+                const dateTags = tags[dateStr]
+                return <CalendarDateItem key={date} date={date} clickCallback={clickCallback} active={inActiveDates.includes(date.getTime())? 'false' : 'true' } tags={dateTags}/>
+
+            }) }
         </div>
     </>)
 }
@@ -115,37 +116,70 @@ function Calendar(){
         const x = e.pageX
         const y = e.pageY
         const date = new Date(parseInt(target.getAttribute("date")))
-        console.log(x,y,date)
         contextMenuXUpdate(x+20)
         contextMenuYUpdate(y+20)
         contextMenuDisplayUpdate('block')
         contextMenuDateUpdate(date)
+ 
+        document.getElementById("selectedDate").value = date.getTime()
+
         e.stopPropagation()
     }
-    const [currentFaps, currentFapsUpdate] = useState([])
+    const [currentEntries, currentEntriesUpdate] = useState({})
     useEffect(()=>{
-        axios.get('/faps').then((response)=>{
-            currentFapsUpdate(response.data);
-            console.log(response.data)
+        const today = new Date();
+        const dateParam = today.toISOString().substring(0,7)
+        axios.get('/entries',{params:{date:dateParam}}).then((response)=>{
+            currentEntriesUpdate(response.data)
+        })
+
+        axios.get("/tags").then((response)=>{
+            userTagsUpdate(response.data)
         })
     },[])
 
     document.addEventListener('click',()=>{
         contextMenuDisplayUpdate('none')
+        selectTagsMenuDisplayUpdate('none')
     })
 
     const [contextMenuX,contextMenuXUpdate] = useState(1)
     const [contextMenuY,contextMenuYUpdate] = useState(1)
     const [contextMenuDate, contextMenuDateUpdate] = useState(new Date())
     const [contextMenuDisplay, contextMenuDisplayUpdate] = useState('none')
-    console.log(contextMenuDisplay)
+
+    const [selectTagsMenuDisplay,selectTagsMenuDisplayUpdate] = useState('none')
+
+    const [userTags, userTagsUpdate] = useState([])
+
+
+    function confirmCallback(){
+        const today = new Date();
+        const dateParam = today.toISOString().substring(0,7)
+        axios.get('/entries',{params:{date:dateParam}}).then((response)=>{
+            currentEntriesUpdate(response.data)
+            console.log(response.data)
+        })
+        console.log("confirm Callback")
+    }
 
     return <>
         <div className="calendar d-flex flex-column align-items-center">
+            <input type="text" name="selectedDate" id="selectedDate" hidden/>
             <CalendarHeader month={monthName} year={currentYear} onIncrement={setNextMonth} onDecrement={setPreviousMonth}/>
-            {calendarRows.map((row,index)=> <CalendarRow key={index} dates={row.dates} fapDates={currentFaps} clickCallback={clickCallback} inActiveDates={row.inactive}/>)}
+            {calendarRows.map((row,index)=> 
+            <CalendarRow 
+            key={index} 
+            dates={row.dates} 
+            tags={currentEntries} 
+            clickCallback={clickCallback} 
+            inActiveDates={row.inactive}/>)
+            }
         </div>
-        <ContextMenu style={{display:contextMenuDisplay,top:contextMenuY+'px',left:contextMenuX+'px'}} date={contextMenuDate}/>
+        <ContextMenu style={{display:contextMenuDisplay,top:contextMenuY+'px',left:contextMenuX+'px'}} date={contextMenuDate}
+        onAdd={()=>selectTagsMenuDisplayUpdate("block")}
+        />
+        <SelectTags style={{display:selectTagsMenuDisplay}} tags={userTags} confirmCallbackParent={confirmCallback}></SelectTags>
     </>
 }
 
