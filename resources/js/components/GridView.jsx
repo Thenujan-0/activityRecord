@@ -1,5 +1,5 @@
-function GridView({children, style}){
-    return (<div className="d-flex flex-wrap" style={style}>
+function GridView({children, style, className}){
+    return (<div className={"d-flex flex-wrap "+(className? className : '')} style={style}>
         {children}
     </div>)
 }
