@@ -55,7 +55,7 @@ function SelectTags({style, tags, confirmCallbackParent}){
     function confirmCallback(){
         const dateTime = document.getElementById("selectedDate").value
         const date = new Date(Number(dateTime))
-        const dateStr = date.toISOString().slice(0, 10)
+        const dateStr = date.toLocaleDateString().split( '/' ).reverse( ).join( '-' )
         console.log(dateStr)
         axios.post("/entries",{tags:selectedTags,date:dateStr}).then((resp)=>{
             console.log(resp)            

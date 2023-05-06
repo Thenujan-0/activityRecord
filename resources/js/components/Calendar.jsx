@@ -32,7 +32,7 @@ function CalendarRow({dates,inActiveDates,clickCallback,tags}){
     return (<>
         <div className="d-flex">
             {dates.map((date)=> {
-                const dateStr = date.toISOString().substring(0,10)
+                const dateStr = date.toLocaleDateString().split( '/' ).reverse( ).join( '-' )
                 const dateTags = tags[dateStr]
                 return <CalendarDateItem key={date} date={date} clickCallback={clickCallback} active={inActiveDates.includes(date.getTime())? 'false' : 'true' } tags={dateTags}/>
 
