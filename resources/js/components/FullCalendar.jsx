@@ -47,7 +47,7 @@ function CalendarRow({dates,inActiveDates,clickCallback,tags}){
 }
 
 function CalendarHeader({month,year,onDecrement,onIncrement}){
-    const daysInWeek = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+    const daysInWeek = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
     const daysInWeekItemStyle = {
         'minWidth':'14%'
     }
