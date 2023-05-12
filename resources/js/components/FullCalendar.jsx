@@ -167,7 +167,7 @@ function FullCalendar(){
         contextMenuDateUpdate(date)
  
         document.getElementById("selectedDate").value = date.getTime()
-
+        selectTagsMenuDisplayUpdate("none")
         e.stopPropagation()
     }
     const [currentEntries, currentEntriesUpdate] = useState({})
