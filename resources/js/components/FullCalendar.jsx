@@ -1,8 +1,10 @@
-import {useState, useEffect} from  'react'
+import {useState, useEffect, useRef} from  'react'
 import axios from "axios";
 
 import ContextMenu from './ContextMenu'
 import SelectTags from './SelectTags';
+
+import "../../sass/fullCalendar.scss"
 
 function CalendarDateItem({date,active,clickCallback,tags}){
     
@@ -24,10 +26,31 @@ function CalendarDateItem({date,active,clickCallback,tags}){
         <div className={className} style={style} date={date.getTime()} onClick={clickCallback}>
             {date.getDate()}
             {tags && tags.map((tag)=>{
-                return <h6 key={tag} >{tag}</h6>
+                return <Tag name={tag} key={tag} date={date}/>
             })}
             </div>
     </>)
+}
+
+function Tag({name,date}){
+    const xmark = useRef(null)
+
+    let initialized = false
+    useEffect(()=>{
+        if (initialized)
+            return
+        initialized = true
+
+        
+        xmark.current.addEventListener("click",()=>{
+            console.log("close event called for this tag",name,date)
+        })
+    },[])
+
+    return (<div className='calendarTag d-flex bg-secondary align-items-center justify-content-between mb-1'>
+        <h6 className='text-white mb-0 ms-1'>{name}</h6>
+        <i className='xmark fa-solid fa-xmark text-white mx-1' style={{visibility:"hidden"}} ref={xmark}></i>
+        </div>)
 }
 
 function CalendarRow({dates,inActiveDates,clickCallback,tags}){
