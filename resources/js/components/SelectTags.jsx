@@ -62,6 +62,7 @@ function SelectTags({style, tags, confirmCallbackParent}){
         })
         confirmCallbackParent()
         selectedTagsUpdate([])
+        selectTagElement.current.style.display = 'none'
     }
     const selectTagElement = useRef(null)
     useEffect(()=>{
