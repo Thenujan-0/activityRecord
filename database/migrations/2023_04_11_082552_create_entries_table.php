@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId("tag_id")->constrained();
             $table->date("date");
             $table->string("text")->nullable();
+            $table->unique(["date","tag_id","user_id"]);
         });
     }
 
