@@ -180,9 +180,6 @@ function FullCalendar(){
         })
 
         document.addEventListener('click',(e)=>{
-            // console.log(e.target)
-            console.log('clicked outside caught elements so .. disposing all context menus and popups')
-            contextMenuDisplayUpdate('none')
             selectTagsMenuDisplayUpdate('none')
             e.stopPropagation()
         })
