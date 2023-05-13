@@ -161,13 +161,10 @@ function FullCalendar(){
         const x = e.pageX
         const y = e.pageY
         const date = new Date(parseInt(target.getAttribute("date")))
-        contextMenuXUpdate(x+20)
-        contextMenuYUpdate(y+20)
-        contextMenuDisplayUpdate('block')
-        contextMenuDateUpdate(date)
+        selectTagsMenuDisplayUpdate("block")
+        selectTagsMenuDateUpdate(date)
  
         document.getElementById("selectedDate").value = date.getTime()
-        selectTagsMenuDisplayUpdate("none")
         e.stopPropagation()
     }
     const [currentEntries, currentEntriesUpdate] = useState({})
@@ -193,10 +190,7 @@ function FullCalendar(){
 
 
 
-    const [contextMenuX,contextMenuXUpdate] = useState(1)
-    const [contextMenuY,contextMenuYUpdate] = useState(1)
-    const [contextMenuDate, contextMenuDateUpdate] = useState(new Date())
-    const [contextMenuDisplay, contextMenuDisplayUpdate] = useState('none')
+    const [selectTagsMenuDate, selectTagsMenuDateUpdate] = useState(new Date())
 
     const [selectTagsMenuDisplay,selectTagsMenuDisplayUpdate] = useState('none')
 
@@ -208,9 +202,9 @@ function FullCalendar(){
         const dateParam = today.toISOString().substring(0,7)
         axios.get('/entries',{params:{date:dateParam}}).then((response)=>{
             currentEntriesUpdate(response.data)
-            console.log(response.data)
         })
         console.log("confirm Callback")
+        selectTagsMenuDisplayUpdate("none")
     }
 
     return <>
@@ -226,10 +220,7 @@ function FullCalendar(){
             inActiveDates={row.inactive}/>)
             }
         </div>
-        <ContextMenu style={{display:contextMenuDisplay,top:contextMenuY+'px',left:contextMenuX+'px'}} date={contextMenuDate}
-        onAdd={()=>selectTagsMenuDisplayUpdate("block")}
-        />
-        <SelectTags style={{display:selectTagsMenuDisplay}} tags={userTags} confirmCallbackParent={confirmCallback}></SelectTags>
+        <SelectTags style={{display:selectTagsMenuDisplay}} tags={userTags} date={selectTagsMenuDate} confirmCallbackParent={confirmCallback}></SelectTags>
     </>
 }
 
