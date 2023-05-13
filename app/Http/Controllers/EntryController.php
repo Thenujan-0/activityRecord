@@ -60,7 +60,12 @@ class EntryController extends Controller
         // $tag_ids = $this->find_tag_ids($tag_names);
         $user_id = Auth::user()->id;
         $date = $request->input("date");
+        $oldTagsOnDate = Entry::where(["user_id"=>$user_id, "date"=>$date])->pluck("tag_id")->toArray();
         foreach($tags as $tag){
+            if (in_array($tag["id"],$oldTagsOnDate)){
+                continue;
+            }
+            
             Entry::create(['user_id'=>$user_id,"tag_id"=>$tag["id"],"date"=>$date]);
         }
     }
@@ -103,6 +108,12 @@ class EntryController extends Controller
      */
     public function destroy(Entry $entry)
     {
-        //
+        //Todo find a way to store entry id on tag elements and then just send the id as argument
+        $tag = $request->input("tag");
+        $user_id = Auth::user()->id;
+        $date = $request->input("date");
+        $entry = Entry::where(["user_id"=>$user_id,"tag"=>$tag, "date"=>$date])->first();
+        Entry::destroy($entry->id);
+        return response()->json($entry->id);
     }
 }
