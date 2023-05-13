@@ -4,6 +4,7 @@ import TagItem from "./TagItem"
 import { useEffect, useRef, useState } from "react"
 import axios from "axios"
 
+import dateToStr from "../includes/dateToStr"
 
 function SelectTags({style, tags, confirmCallbackParent, date}){
 
@@ -55,7 +56,7 @@ function SelectTags({style, tags, confirmCallbackParent, date}){
     function confirmCallback(){
         const dateTime = document.getElementById("selectedDate").value
         const date_ = new Date(Number(dateTime))
-        const dateStr = date_.toLocaleDateString().split( '/' ).reverse( ).join( '-' )
+        const dateStr = dateToStr(date_)
         axios.post("/entries",{tags:selectedTags,date:dateStr}).then((resp)=>{
             console.log(resp)            
         })

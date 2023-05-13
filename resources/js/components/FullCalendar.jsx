@@ -6,6 +6,8 @@ import SelectTags from './SelectTags';
 
 import "../../sass/fullCalendar.scss"
 
+import dateToStr from '../includes/dateToStr';
+
 function CalendarDateItem({date,active,clickCallback,tags}){
     
     //convert string to bool
@@ -44,6 +46,7 @@ function Tag({name,date}){
         
         xmark.current.addEventListener("click",()=>{
             console.log("close event called for this tag",name,date)
+            const dateParam = dateToStr(date)
         })
     },[])
 
@@ -60,7 +63,7 @@ function CalendarRow({dates,inActiveDates,clickCallback,tags}){
     return (<>
         <div className="d-flex justify-content-between w-100">
             {dates.map((date)=> {
-                const dateStr = date.toLocaleDateString().split( '/' ).reverse( ).join( '-' )
+                const dateStr = dateToStr(date)
                 const dateTags = tags[dateStr]
                 return <CalendarDateItem key={date} date={date} clickCallback={clickCallback} active={inActiveDates.includes(date.getTime())? 'false' : 'true' } tags={dateTags}/>
 
