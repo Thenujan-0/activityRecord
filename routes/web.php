@@ -24,3 +24,4 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::resource('tags', TagController::class);
 Route::resource('entries', EntryController::class);
+Route::delete('entries',[EntryController::class, 'destroy']);

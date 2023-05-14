@@ -106,14 +106,15 @@ class EntryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Entry $entry)
+    public function destroy(Request $request)
     {
         //Todo find a way to store entry id on tag elements and then just send the id as argument
         $tag = $request->input("tag");
+        $tag_id = Tag::where(['name'=>$tag])->pluck("id")->first();
         $user_id = Auth::user()->id;
         $date = $request->input("date");
-        $entry = Entry::where(["user_id"=>$user_id,"tag"=>$tag, "date"=>$date])->first();
-        Entry::destroy($entry->id);
+        $entry = Entry::where(["user_id"=>$user_id,"tag_id"=>$tag_id, "date"=>$date])->first();
+        $entry->delete();
         return response()->json($entry->id);
     }
 }
