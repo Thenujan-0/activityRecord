@@ -8,7 +8,7 @@ import "../../sass/fullCalendar.scss"
 
 import dateToStr from '../includes/dateToStr';
 
-function CalendarDateItem({date,active,clickCallback,tags}){
+function CalendarDateItem({date,active,clickCallback,tags, updateFunction}){
     
     //convert string to bool
     active = active == 'true'
@@ -28,13 +28,13 @@ function CalendarDateItem({date,active,clickCallback,tags}){
         <div className={className} style={style} date={date.getTime()} onClick={clickCallback}>
             {date.getDate()}
             {tags && tags.map((tag)=>{
-                return <Tag name={tag} key={tag} date={date}/>
+                return <Tag name={tag} key={tag} date={date} updateFunction={updateFunction}/>
             })}
             </div>
     </>)
 }
 
-function Tag({name,date}){
+function Tag({name,date, updateFunction}){
     const xmark = useRef(null)
 
     let initialized = false
@@ -44,9 +44,12 @@ function Tag({name,date}){
         initialized = true
 
         
-        xmark.current.addEventListener("click",()=>{
-            console.log("close event called for this tag",name,date)
+        xmark.current.addEventListener("click",(e)=>{
             const dateParam = dateToStr(date)
+            axios.delete("entries",{data: {"date":dateParam,"tag":name}}).then(()=>{
+                updateFunction()
+            })
+            e.stopPropagation()
         })
     },[])
 
@@ -56,7 +59,7 @@ function Tag({name,date}){
         </div>)
 }
 
-function CalendarRow({dates,inActiveDates,clickCallback,tags}){
+function CalendarRow({dates,inActiveDates,clickCallback,tags , updateFunction}){
     
     //To make it comparable with another datetime object
     inActiveDates = inActiveDates.map((dateObj)=>dateObj.getTime())
@@ -65,7 +68,10 @@ function CalendarRow({dates,inActiveDates,clickCallback,tags}){
             {dates.map((date)=> {
                 const dateStr = dateToStr(date)
                 const dateTags = tags[dateStr]
-                return <CalendarDateItem key={date} date={date} clickCallback={clickCallback} active={inActiveDates.includes(date.getTime())? 'false' : 'true' } tags={dateTags}/>
+                return <CalendarDateItem key={date} date={date} clickCallback={clickCallback} 
+                active={inActiveDates.includes(date.getTime())? 'false' : 'true' } 
+                tags={dateTags}
+                updateFunction={updateFunction}/>
 
             }) }
         </div>
@@ -154,7 +160,15 @@ function FullCalendar(){
             break;
         }
     }
+    const [currentEntries, currentEntriesUpdate] = useState({})
 
+    function updateEntries(){
+        const today = new Date();
+        const dateParam = today.toISOString().substring(0,7)
+        axios.get('/entries',{params:{date:dateParam}}).then((response)=>{
+            currentEntriesUpdate(response.data)
+        })
+    }
 
     function clickCallback(e){
         let target = e.target
@@ -170,13 +184,8 @@ function FullCalendar(){
         document.getElementById("selectedDate").value = date.getTime()
         e.stopPropagation()
     }
-    const [currentEntries, currentEntriesUpdate] = useState({})
     useEffect(()=>{
-        const today = new Date();
-        const dateParam = today.toISOString().substring(0,7)
-        axios.get('/entries',{params:{date:dateParam}}).then((response)=>{
-            currentEntriesUpdate(response.data)
-        })
+        updateEntries()
 
         axios.get("/tags").then((response)=>{
             userTagsUpdate(response.data)
@@ -217,7 +226,8 @@ function FullCalendar(){
             dates={row.dates} 
             tags={currentEntries} 
             clickCallback={clickCallback} 
-            inActiveDates={row.inactive}/>)
+            inActiveDates={row.inactive}
+            updateFunction={updateEntries}/>)
             }
         </div>
         <SelectTags style={{display:selectTagsMenuDisplay}} tags={userTags} date={selectTagsMenuDate} confirmCallbackParent={confirmCallback}></SelectTags>
